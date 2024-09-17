@@ -46,7 +46,14 @@ const ExportPage = () => {
   useEffect(() => {
     const getExport = async () => {
       try {
-        const response = await fetch(`https://minexx-api.vercel.app/exportnoauth/${id}`);
+        const response = await fetch(`https://minexx-api.vercel.app/exportnoauth/${id}`,
+          {
+            method:'GET',
+            headers:
+            {
+              'x-platform':platform
+            }
+          });
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
