@@ -6,12 +6,17 @@ import { Loader } from 'lucide-react';
 
 const ExportPage = () => {
   const { id } = useParams();
+  const{company_id}=useParams();
   const query = new URLSearchParams(useLocation().search);
   console.log(query.toString());
   const platform = query.get('x-platform') || '3ts';
   console.log('Platform:', platform); 
   
   const [export_, setExport_] = useState(null);
+  const [company, setCompany] = useState(null);
+  const [companyDocs, setCompanyDocs] = useState([]);
+  const [shareholder,setShareholder]=useState([]);
+  const [beneficial,setBeneficial]=useState([]);
   const [document, setDocument] = useState(0);
   const [uploads, setUploads] = useState([]);
   const [activeDocumentKey, setActiveDocumentKey] = useState('doc-0');
@@ -92,6 +97,67 @@ const ExportPage = () => {
           data.export.exporterApplicationDocument,
           data.export.transporterDocument
         ]);
+        const companyResponse = await fetch(`https://minexx-api.vercel.app/companiesnoAuth/${company_id}`,
+          {
+            method:'GET',
+            headers:
+            {
+              'x-platform':platform
+            }
+          });
+        if (!companyResponse.ok) {
+          throw new Error('Network response was not ok for company details');
+        }
+        const companyData = await companyResponse.json();
+        setCompany(companyData);
+        console.log("compony Data",companyData);
+
+        //for documentation
+        const companyDocResponse = await fetch(`https://minexx-api.vercel.app/documentsnoAuth/${company_id}`,
+          {
+            method:'GET',
+            headers:
+            {
+              'x-platform':platform
+            }
+          });
+        if (!companyResponse.ok) {
+          throw new Error('Network response was not ok for company details');
+        }
+        const companyDocData = await companyDocResponse.json();
+        setCompanyDocs(companyDocData.documents);
+        console.log("compony Data Document",companyDocData);
+        //for shareholder
+        const shareholderResponse = await fetch(`https://minexx-api.vercel.app/shareholdersnoAuth/${company_id}`,
+          {
+            method:'GET',
+            headers:
+            {
+              'x-platform':platform
+            }
+          });
+        if (!companyResponse.ok) {
+          throw new Error('Network response was not ok for company details');
+        }
+        const shareholderData = await shareholderResponse.json();
+        setShareholder(shareholderData.shareholders);
+        console.log("Shareholder Data",shareholderData.shareholders);
+        //for beneficial
+        const beneficialResponse = await fetch(`https://minexx-api.vercel.app/ownersnoAuth/${company_id}`,
+          {
+            method:'GET',
+            headers:
+            {
+              'x-platform':platform
+            }
+          });
+        if (!companyResponse.ok) {
+          throw new Error('Network response was not ok for company details');
+        }
+        const beneficialData = await beneficialResponse.json();
+        setBeneficial(beneficialData.beneficial_owners);
+        console.log("Shareholder Data",beneficialData.beneficial_owners);
+     
       } catch (err) {
         toast.error("Error fetching export details");
         console.error("Error fetching export details:", err);
@@ -99,9 +165,9 @@ const ExportPage = () => {
     };
 
     getExport();
-  }, [id, platform]);
+  }, [id, platform,company_id]);
 
-  if (!export_) {
+  if (!export_|| !company || !companyDocs || !shareholder || !beneficial) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
         <Loader size={48} className="animate-spin" />
@@ -127,6 +193,16 @@ const ExportPage = () => {
                       <Nav.Item as="li" className="nav-item">
                         <Nav.Link className="nav-link px-2 px-lg-3" to="#documents" role="tab" eventKey="documents">
                           Documents
+                        </Nav.Link>
+                      </Nav.Item>
+                      <Nav.Item as="li" className="nav-item">
+                        <Nav.Link className="nav-link px-2 px-lg-3" to="#exporter" role="tab" eventKey="exporter">
+                        Exporter
+                        </Nav.Link>
+                      </Nav.Item>
+                      <Nav.Item as="li" className="nav-item">
+                        <Nav.Link className="nav-link px-2 px-lg-3" to="#Mine" role="tab" eventKey="Mine">
+                        Mine
                         </Nav.Link>
                       </Nav.Item>
                     </Nav>
@@ -351,6 +427,169 @@ const ExportPage = () => {
                           </Accordion.Collapse>
                         </Accordion.Item>
                       ))}
+                    </Accordion>
+                  </div>
+                </div>
+              </Tab.Pane>
+              {/* for Expoter */}
+              <Tab.Pane eventKey="exporter" id='expoter'>
+                <div className='card'>
+                  <div className='card-body'>
+                    <Accordion className="accordion accordion-primary" defaultActiveKey="exportation">
+                      <Accordion.Item className="accordion-item" key="exportation" eventKey="exportation">
+                        <Accordion.Header className="accordion-header rounded-lg">
+                          Basic Info
+                        </Accordion.Header>
+                        <Accordion.Collapse eventKey="exportation">
+                          <div className="accordion-body">
+                            <div className='row'>
+                             
+                              <div className='col-lg-6'>
+                               
+                                  <>
+                                    <h4 className="text-primary mb-2 mt-4">Company Name</h4>
+                                    <p className="text-light" style={{ textDecoration: 'none' }}>{company.company.name}</p>
+                                  </>
+                                  <>
+                                    <h4 className="text-primary mb-2 mt-4">Company Address</h4>
+                                    <p className="text-light" style={{ textDecoration: 'none' }}>{company.company.address}</p>
+                                  </>
+                             
+                                  <>
+                                    <h4 className="text-primary mb-2 mt-4">Company Country</h4>
+                                    <p className="text-light" style={{ textDecoration: 'none' }}>{company.company.country}</p>
+                                  </>
+                              
+                                  <>
+                                    <h4 className="text-primary mb-2 mt-4">Company Number</h4>
+                                    <p className="text-light" style={{ textDecoration: 'none' }}>{company.company.number}</p>
+                                  </>
+                               
+                                  <>
+                                    <h4 className="text-primary mb-2 mt-4">Company Type</h4>
+                                    <p className="text-light" style={{ textDecoration: 'none' }}>
+                                     {company.company.type}
+                                    </p>
+                                  </>
+                             
+                              </div>
+                            </div>
+                          </div>
+                        </Accordion.Collapse>
+                      </Accordion.Item>
+                      <br/>
+                      <Accordion.Item className="accordion-item" key="documents" eventKey="documents">
+                        <Accordion.Header className="accordion-header rounded-lg">
+                          Documents
+                        </Accordion.Header>
+                        <Accordion.Collapse eventKey="documents">
+                          <div className="accordion-body">
+                            {companyDocs.length > 0 ? (
+                              <ListGroup>
+                                {companyDocs.map((document, index) => (
+                                  <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
+                                    <span className='accordion-body'>{document.type}</span>
+                                    {/* <iframe 
+                                    title={document} 
+                                    src={`https://drive.google.com/file/d/${document.file}/preview`} 
+                                    width="100%" 
+                                    height="500" 
+                                    allow="autoplay"
+                                  ></iframe> */}
+                                  
+                                  <div className="mt-3">
+                                    <a 
+                                      target='_blank' 
+                                      className='btn btn-primary' 
+                                      href={`https://drive.usercontent.google.com/download?id=${document.file}&export=download&authuser=0`}
+                                      rel="noreferrer"
+                                    >
+                                      Download
+                                    </a>
+                                  </div> 
+                                 
+                                  </ListGroup.Item>
+                                ))}
+                              </ListGroup>
+                            ) : (
+                              <p className="text-light">No documents available</p>
+                            )}
+                          </div>
+                        </Accordion.Collapse>
+                      </Accordion.Item>
+                      
+                      <br/>
+                      <Accordion.Item className="accordion-item" key="transport" eventKey="transport">
+                        <Accordion.Header className="accordion-header rounded-lg">
+                          Shareholder
+                        </Accordion.Header>
+                        <Accordion.Collapse eventKey={`transport`}>
+                          <div className="accordion-body">
+                          {shareholder.length > 0 ? (
+                            <div>
+                             
+                                {shareholder.map((document, index) => (
+                                  <>
+                                  <h4  key={index} className="text-primary mb-2 mt-4">Name:{document.name}</h4>
+                                  <h4 className="text-light mb-2 mt-4">Percentage Owned:{document.percent}%</h4>
+                                  <h4 className='text-light mb-2 mt-4'>Nationality:{document.nationality}</h4>
+                                  <h4 className='text-light mb-2 mt-4'>Address:{document.address}</h4>
+                                  <iframe 
+                                    title={document} 
+                                    src={`https://drive.google.com/file/d/${document.nationalID}/preview`} 
+                                    width="100%" 
+                                    height="500" 
+                                    allow="autoplay"
+                                  ></iframe> 
+
+                      
+                                  </>
+                                ))}
+                            </div>
+                            ) : (
+                              <p className="text-light">No documents available</p>
+                            )}
+                             
+                          </div>
+                        </Accordion.Collapse>
+                      </Accordion.Item>
+                      <br/>
+                      <Accordion.Item className="accordion-item" key="representatives" eventKey="representatives">
+                        <Accordion.Header className="accordion-header rounded-lg">
+                        Beneficial Owners
+                        </Accordion.Header>
+                        <Accordion.Collapse eventKey={`representatives`}>
+                          <div className="accordion-body">
+                          {beneficial.length > 0 ? (
+                            <div>
+                             
+                                {beneficial.map((owner, index) => (
+                                  <>
+                                  <h4  key={index} className="text-primary mb-2 mt-4">Name:{owner.name}</h4>
+                                  <h4 className="text-light mb-2 mt-4">Percentage Owned:{owner.percent}%</h4>
+                                  <h4 className='text-light mb-2 mt-4'>Nationality:{owner.nationality}</h4>
+                                  <h4 className='text-light mb-2 mt-4'>Address:{owner.address}</h4>
+                                  <iframe 
+                                    title={owner} 
+                                    src={`https://drive.google.com/file/d/${owner.nationalID}/preview`} 
+                                    width="100%" 
+                                    height="500" 
+                                    allow="autoplay"
+                                  ></iframe> 
+
+                      
+                                  </>
+                                ))}
+                            </div>
+                            ) : (
+                              <p className="text-light">No Beneficial Owner available</p>
+                            )}
+                         
+
+                           
+                          </div>
+                        </Accordion.Collapse>
+                      </Accordion.Item>
                     </Accordion>
                   </div>
                 </div>
