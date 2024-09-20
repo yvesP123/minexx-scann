@@ -6,7 +6,7 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/export/:id" element={<ExportPage />} />
+        <Route path="/export/:id/:company_id" element={<ExportPage />} />
       </Routes>
     </Router>
   );
