@@ -66,7 +66,7 @@ const ExportPage = () => {
     `Other Exporter Documents`,
     `Other Transporter Document`,
   ];
-  const headers = ['General Information', 'Legitimacy', 'Human and Workers Rights', 'Societal Welfare / Security', 'Company Governance', 'Chain of Custody/Traceability/Tracking', 'Environment', 'Community Impact']
+  const headers = ['General Information', 'Legitimacy', 'HUMAN AND WORKERS RIGTHS', 'Societal Welfare / Security', 'Company Governance', 'Chain of Custody/Traceability/Tracking', 'Environment', 'Community Impact']
   const indexes = ['general', 'legitimacy', 'rights', 'welfare', 'governance', 'traceability', 'environment', 'community']
   const getFilteredHeaders = (headers) => {
     return headers.filter(header => {
@@ -300,7 +300,7 @@ const ExportPage = () => {
   const renderSubHeaders = (header) => {
     if (!assessment || !assessment[header]) return null;
 
-    return assessment[header].map((value, i) => {
+    const subHeaderItems = assessment[header].map((value, i) => {
       const headerIndex = assessmentHeaders.findIndex(
         h => h.toLowerCase().includes(headers[indexes.indexOf(header)].toLowerCase())
       );
@@ -311,7 +311,12 @@ const ExportPage = () => {
         subHeaders.push(assessmentHeaders[j]);
       }
       
-      if (subHeaders[i] && subHeaders[i].trim() !== '' && value) {
+      // Skip rendering if the subheader is "Mine/Concession Name" or "ID Number"
+      if (subHeaders[i] && 
+          subHeaders[i].trim() !== '' && 
+          value && 
+          !subHeaders[i].includes('Mine/Concession Name') && 
+          !subHeaders[i].includes('ID Number')) {
         return (
           <Accordion.Item className="accordion-item" key={i} eventKey={i.toString()}>
             <Accordion.Header className="accordion-header rounded-lg">
@@ -338,6 +343,19 @@ const ExportPage = () => {
       }
       return null;
     }).filter(Boolean);
+
+    // If no subheaders are displayed, show "No information recorded"
+    if (subHeaderItems.length === 0) {
+      return (
+        
+            <div className="accordion-body">
+              <p className='text-light'>No information recorded</p>
+            </div>
+       
+      );
+    }
+
+    return subHeaderItems;
   };
 
   const renderAssessmentContent = () => (
