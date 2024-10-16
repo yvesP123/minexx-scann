@@ -296,6 +296,7 @@ const ExportPage = () => {
     getExport();
     fetMinesite();
   }, [id, platform,company_id]);
+ 
   const renderSubHeaders = (header) => {
     if (!assessment || !assessment[header]) return null;
 
@@ -310,7 +311,7 @@ const ExportPage = () => {
         subHeaders.push(assessmentHeaders[j]);
       }
       
-      if (subHeaders[i] && subHeaders[i].trim() !== '') {
+      if (subHeaders[i] && subHeaders[i].trim() !== '' && value) {
         return (
           <Accordion.Item className="accordion-item" key={i} eventKey={i.toString()}>
             <Accordion.Header className="accordion-header rounded-lg">
@@ -328,7 +329,7 @@ const ExportPage = () => {
                     style={{ maxWidth: '100%', height: 'auto' }}
                   />
                 ) : (
-                  <p className='text-light'>{value || 'No data available'}</p>
+                  <p className='text-light'>{value}</p>
                 )}
               </div>
             </Accordion.Collapse>
@@ -336,7 +337,7 @@ const ExportPage = () => {
         );
       }
       return null;
-    });
+    }).filter(Boolean);
   };
 
   const renderAssessmentContent = () => (
